@@ -7,7 +7,6 @@ import Itinerary from "../components/Itinerary.jsx";
 import { ScrollView } from "react-native-gesture-handler";
 
 const City = (props) => {
-  console.log(props.loggedUser);
   const { id } = props.route.params;
 
   useEffect(() => {

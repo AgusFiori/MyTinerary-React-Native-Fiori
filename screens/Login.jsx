@@ -18,18 +18,11 @@ const Login = (props) => {
   const [hiddenPassword, sethiddenPassword] = useState(true);
   const [userToLog, setUserToLog] = useState({ username: "", password: "" });
 
-  const signIn = () => {
-    props.login(userToLog);
-
-    AsyncStorage.getItem("id").then((info) => console.log(info));
-
-    // if (!!AsyncStorage.getItem("id").then((info) => info)) {
-    //   props.navigation.navigate("Home");
-    //   AsyncStorage.getItem("id").then((info) => console.log(info));
-    // } else {
-    //   AsyncStorage.getItem("id").then((info) => console.log(!!info));
-    //   alert("error");
-    // }
+  const signIn = async () => {
+    const respuesta = await props.login(userToLog);
+    if (!respuesta.success) {
+      alert(respuesta.msg);
+    }
   };
 
   return (
@@ -157,8 +150,15 @@ const Login = (props) => {
   );
 };
 
+const mapStateToProps = (state) => {
+  return {
+    error: state.authR.error,
+    loggedUser: state.authR.loggedUser,
+  };
+};
+
 const mapDispatchToProps = {
   login: authActions.login,
 };
 
-export default connect(null, mapDispatchToProps)(Login);
+export default connect(mapStateToProps, mapDispatchToProps)(Login);

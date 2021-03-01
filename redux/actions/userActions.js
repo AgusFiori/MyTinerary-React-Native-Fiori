@@ -2,6 +2,7 @@ import axios from "axios";
 
 const usersActions = {
   postComment: (comment) => {
+    console.log(comment)
     const { id, name, urlPic, token, cityId } = comment;
     const actualComment = comment.comment;
     return async (dispatch, getState) => {

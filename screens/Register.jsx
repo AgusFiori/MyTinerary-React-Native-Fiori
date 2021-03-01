@@ -26,17 +26,20 @@ const Register = (props) => {
   });
   const [countries, setCountries] = useState([]);
   const [selectedCountry, setSelectedCountry] = useState("");
+  const [errors, setErrors] = useState([]);
 
   const cargarPais = (value) => {
     setSelectedCountry(value);
     setNewUser({ ...newUser, country: value });
   };
 
-  const register = () => {
-    // console.log(newUser);
-    props.signUp(newUser);
-    alert("User registered");
-    props.navigation.navigate("Home");
+  const register = async () => {
+    const respuesta = await props.signUp(newUser);
+    console.log(respuesta.errors.details);
+    if (!respuesta.success) {
+      respuesta.errors.details.map((error) => setErrors(error.message));
+      alert(errors);
+    }
   };
 
   useEffect(() => {

@@ -7,6 +7,9 @@ const authActions = {
         "https://mytinerary-cities.herokuapp.com/register",
         newUser
       );
+      if (!respuesta.data.success) {
+        return respuesta.data;
+      }
       dispatch({ type: "LOG_USER", payload: respuesta.data });
     };
   },

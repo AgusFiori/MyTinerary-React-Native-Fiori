@@ -1,28 +1,44 @@
-import React from "react";
-import { Image, Text, View } from "react-native";
+import React, { useState } from "react";
+import { Button, Image, Pressable, Text, View } from "react-native";
 import Icon from "react-native-vector-icons/FontAwesome";
 import { connect } from "react-redux";
 import itinerariesActions from "../redux/actions/itinerariesActions";
 import userActions from "../redux/actions/userActions";
 import IconF from "react-native-vector-icons/FontAwesome5";
+import { TextInput } from "react-native-gesture-handler";
 
 const Itinerary = (props) => {
-  console.log(props);
+  const [visible, setVisible] = useState(false);
+  const [comment, setComment] = useState({});
 
   const like = async () => {
     await props.likeItinerary(
-      props.props.itinerary._id,
+      props.props._id,
       props.loggedUser.token,
-      props.props.itinerary.cityId._id
+      props.props.cityId._id
     );
   };
 
   const dislike = async () => {
     await props.dislikeItinerary(
-      props.props.itinerary._id,
+      props.props._id,
       props.loggedUser.token,
-      props.props.itinerary.cityId._id
+      props.props.cityId._id
     );
+  };
+
+  const postComment = async () => {
+    if (props.loggedUser) {
+      setComment({
+        ...comment,
+        id: props.loggedUser.id,
+        name: props.loggedUser.firstname,
+        urlPic: props.loggedUser.urlPic,
+        token: props.loggedUser.token,
+        cityId: props.props._id,
+      });
+      await props.postComment(comment);
+    }
   };
 
   return (
@@ -77,9 +93,18 @@ const Itinerary = (props) => {
         >
           {props.loggedUser ? (
             props.props.likes.find((like) => like === props.loggedUser.id) ? (
-              <Icon name="heart" size={15} color="darkred" />
+              <View style={{ backgroundColor: "white" }}>
+                <Icon
+                  name="heart"
+                  size={30}
+                  color="darkred"
+                  onPress={dislike}
+                />
+              </View>
             ) : (
-              <IconF name="heart" size={15} color="darkred" onPress={dislike} />
+              <View style={{ backgroundColor: "white" }}>
+                <IconF name="heart" size={30} color="darkred" onPress={like} />
+              </View>
             )
           ) : (
             <View style={{ backgroundColor: "white" }}>
@@ -93,7 +118,7 @@ const Itinerary = (props) => {
           )}
           <Text style={{ fontSize: 21 }}>{props.props.likes.length}</Text>
         </Text>
-        <Text>{props.props.likes.length}hs</Text>
+        <Text>{props.props.duration}hs</Text>
         <Text>
           {Array(props.props.budget).fill(
             <Icon name="money" size={15} color="darkgreen" />
@@ -184,61 +209,107 @@ const Itinerary = (props) => {
         >
           <Text style={{ fontSize: 21 }}>Comments</Text>
         </View>
-        <View>
-          {props.props.comments.map((comment) => (
-            <View
-              style={{
-                flexDirection: "row",
-                height: 150,
-                justifyContent: "center",
-              }}
-            >
+        {visible && (
+          <View>
+            {props.props.comments.map((comment) => (
               <View
                 style={{
-                  backgroundColor: "lightgrey",
-                  width: 100,
-                  marginBottom: 10,
-                  padding: 10,
-                  borderTopLeftRadius: 12,
-                  borderBottomLeftRadius: 12,
+                  flexDirection: "row",
+                  height: 150,
+                  justifyContent: "center",
                 }}
               >
                 <View
                   style={{
-                    borderRadius: 23,
-                    alignSelf: "center",
-                    width: 50,
+                    backgroundColor: "lightgrey",
+                    width: 100,
+                    marginBottom: 10,
+                    padding: 10,
+                    borderTopLeftRadius: 12,
+                    borderBottomLeftRadius: 12,
                   }}
                 >
-                  <Image
-                    source={{ uri: `${comment.avatar}` }}
-                    resizeMode="cover"
+                  <View
                     style={{
-                      height: 50,
-                      backgroundColor: "white",
-                      borderRadius: 30,
-                      borderWidth: 1,
+                      borderRadius: 23,
+                      alignSelf: "center",
+                      width: 50,
                     }}
-                  ></Image>
+                  >
+                    <Image
+                      source={{ uri: `${comment.avatar}` }}
+                      resizeMode="cover"
+                      style={{
+                        height: 50,
+                        backgroundColor: "white",
+                        borderRadius: 30,
+                        borderWidth: 1,
+                      }}
+                    ></Image>
+                  </View>
+                  <Text style={{ textAlign: "center" }}>
+                    {comment.username}
+                  </Text>
                 </View>
-                <Text style={{ textAlign: "center" }}>{comment.username}</Text>
+                <View
+                  style={{
+                    backgroundColor: "white",
+                    width: 250,
+                    borderWidth: 1,
+                    marginBottom: 10,
+                    borderTopRightRadius: 12,
+                    borderBottomRightRadius: 12,
+                    padding: 12,
+                  }}
+                >
+                  <Text>{comment.comment}</Text>
+                </View>
               </View>
-              <View
+            ))}
+
+            <View
+              style={{
+                backgroundColor: "white",
+                alignItems: "center",
+                flexDirection: "row",
+                justifyContent: "center",
+              }}
+            >
+              <TextInput
                 style={{
-                  backgroundColor: "white",
-                  width: 250,
+                  height: 40,
+                  borderColor: "gray",
                   borderWidth: 1,
-                  marginBottom: 10,
-                  borderTopRightRadius: 12,
-                  borderBottomRightRadius: 12,
-                  padding: 12,
+                  marginBottom: 20,
+                  width: "70%",
+                  padding: 5,
+                  borderTopWidth: 0,
+                  borderRightWidth: 0,
+                  borderLeftWidth: 0,
+                  marginRight: 15,
                 }}
-              >
-                <Text>{comment.comment}</Text>
-              </View>
+                placeholder="Enter comment"
+                name="comment"
+                editable={props.loggedUser ? true : false}
+                onChangeText={(comment) => setComment({ comment: comment })}
+              />
+              <Button title="send" onPress={postComment}></Button>
             </View>
-          ))}
-        </View>
+          </View>
+        )}
+        <Pressable
+          onPress={() => setVisible(!visible)}
+          style={{
+            backgroundColor: "orange",
+            width: "100%",
+            alignItems: "center",
+            borderBottomLeftRadius: 10,
+            borderBottomRightRadius: 10,
+            padding: 10,
+          }}
+        >
+          <Text>View {visible ? "Less" : "More"}</Text>
+        </Pressable>
       </View>
     </View>
   );

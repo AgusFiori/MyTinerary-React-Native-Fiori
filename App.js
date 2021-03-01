@@ -1,21 +1,42 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import 'react-native-gesture-handler';
+import React, { useState } from 'react';
+import Home from './screens/Home.jsx'
+import { NavigationContainer } from '@react-navigation/native';
+import { createStackNavigator } from '@react-navigation/stack';
+import Cities from './screens/Cities.jsx';
+import City from './screens/City.jsx';
+import Register from './screens/Register.jsx';
+import Login from './screens/Login.jsx'
+import { applyMiddleware, createStore } from "redux";
+import rootReducer from "./redux/reducers/rootReducer";
+import thunk from "redux-thunk";
+import { connect, Provider } from "react-redux";
+import { createDrawerNavigator } from '@react-navigation/drawer';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import {
+  DrawerContentScrollView,
+  DrawerItemList,
+  DrawerItem,
+} from '@react-navigation/drawer';
+import authActions from './redux/actions/authActions.js';
+import NotApp from './NotApp.jsx';
 
-export default function App() {
+
+
+const App = () => {
+  const store = createStore(rootReducer, applyMiddleware(thunk));
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <Provider store={store}>
+      <NotApp />
+    </Provider>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+// const mapDispatchToProps = {
+//   logout: authActions.logout
+// }
+
+// export default connect(null, mapDispatchToProps)(App);
+
+export default App
